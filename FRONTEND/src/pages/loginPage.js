@@ -1,0 +1,71 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // To display error messages
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(''); // Reset error state
+
+    try {
+      const response = await fetch('http://localhost:5000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message || 'Login failed');
+        return;
+      }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.token); // Save token for future authenticated requests
+
+      // Redirect to the homepage
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging in:', error);
+      setError('An error occurred while logging in', error);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Login Page</h1>
+      <form onSubmit={handleLogin}>
+        <label>
+          Email:
+          <input
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </label>
+        <br />
+        <label>
+          Password:
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </label>
+        <br />
+        <button type="submit">Login</button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error */}
+    </div>
+  );
+}
+
+export default LoginPage;
