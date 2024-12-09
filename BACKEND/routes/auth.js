@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 
 const router = express.Router();
@@ -10,17 +9,15 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const result = await pool.query('SELECT * FROM Users WHERE email = $1', [email]);
+        // Add more detailed logging
+        console.log('Login attempt:', { email });
+
+        const result = await pool.query('SELECT * FROM Users WHERE email = $1 AND password_hash = $2', [email, password]);
         const user = result.rows[0];
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Verify the password
-        const validPassword = await bcrypt.compare(password, user.password_hash);
-        if (!validPassword) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            console.log('User not found or invalid credentials:', email);
+            return res.status(404).json({ message: 'User not found or invalid credentials' });
         }
 
         // Generate JWT token
@@ -28,8 +25,8 @@ router.post('/login', async (req, res) => {
 
         res.json({ token });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Login error:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 

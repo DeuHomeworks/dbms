@@ -9,31 +9,29 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); // Reset error state
-
+    setError('');
+    
     try {
       const response = await fetch('http://localhost:5000/auth/login', {
         method: 'POST',
+        credentials: 'include', // Add this line
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || 'Login failed');
-        return;
-      }
-
+  
       const data = await response.json();
-      localStorage.setItem('token', data.token); // Save token for future authenticated requests
-
-      // Redirect to the homepage
-      navigate('/');
+  
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        navigate('/');
+      } else {
+        setError(data.message || 'Login failed');
+      }
     } catch (error) {
       console.error('Error logging in:', error);
-      setError('An error occurred while logging in', error);
+      setError('Network error or server is down');
     }
   };
 
