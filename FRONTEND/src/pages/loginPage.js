@@ -10,7 +10,7 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
       const response = await fetch('http://localhost:5000/auth/login', {
         method: 'POST',
@@ -20,12 +20,12 @@ function LoginPage() {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        navigate('/');
+        navigate('/Home');
       } else {
         setError(data.message || 'Login failed');
       }
@@ -62,6 +62,15 @@ function LoginPage() {
         <button type="submit">Login</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error */}
+      <p>
+        Don’t have an account?{' '}
+        <span
+          style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
+          onClick={() => navigate('/Signup')}
+        >
+          Sign up here
+        </span>
+      </p>
     </div>
   );
 }

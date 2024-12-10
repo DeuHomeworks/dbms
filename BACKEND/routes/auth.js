@@ -30,4 +30,41 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// Signup Route
+router.post('/signup', async (req, res) => {
+  const { firstname, lastname, email, phone, password } = req.body;
+
+  try {
+    // Log the signup attempt
+    console.log('Signup attempt:', { email });
+
+    // // Hash the password
+    // const saltRounds = 10;
+    // const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Insert new user into the database
+    const newUser = await pool.query(
+      'INSERT INTO Users (firstname, lastname, email, phone, password_hash) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [firstname, lastname, email, phone, password]
+    );
+    const user = newUser.rows[0];
+
+    // Generate JWT token
+    const token = jwt.sign({ UID: user.uid }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(201).json({ message: 'User created successfully', token });
+  } catch (err) {
+    // Check for unique constraint violations
+    if (err.code === '23505') {
+      const field = err.constraint.includes('email') ? 'email' : 'phone';
+      res.status(400).json({ message: `${field} is already in use` });
+    } else {
+      console.error('Signup error:', err);
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  }
+});
+
 module.exports = router;
+
+
