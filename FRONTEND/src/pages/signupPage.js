@@ -22,7 +22,7 @@ function SignupPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/auth/Signup', {
+      const response = await fetch('http://localhost:5000/auth/signup', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -34,7 +34,7 @@ function SignupPage() {
       const data = await response.json();
 
       if (response.ok) {
-        navigate('/');
+        navigate('/Home');
       } else {
         setError(data.message || 'Signup failed');
       }
