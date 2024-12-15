@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/login.css';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -25,7 +26,7 @@ function LoginPage() {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        navigate('/Home');
+        navigate('/');
       } else {
         setError(data.message || 'Login failed');
       }
@@ -36,36 +37,38 @@ function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login Page</h1>
-      <form onSubmit={handleLogin}>
-        <label>
+    <div className="login-container">
+      <h1 className="login-title">Login Page</h1>
+      <form onSubmit={handleLogin} className="login-form">
+        <label className="login-label">
           Email:
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="login-input"
           />
         </label>
         <br />
-        <label>
+        <label className="login-label">
           Password:
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="login-input"
           />
         </label>
         <br />
-        <button type="submit">Login</button>
+        <button type="submit" className="login-button">Login</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error */}
-      <p>
+      {error && <p className="login-error">{error}</p>}
+      <p className="login-signup-link">
         Don’t have an account?{' '}
         <span
-          style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
+          className="login-signup-text"
           onClick={() => navigate('/Signup')}
         >
           Sign up here

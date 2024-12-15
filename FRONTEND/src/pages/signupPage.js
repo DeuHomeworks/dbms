@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/signup.css';
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -34,7 +35,7 @@ function SignupPage() {
       const data = await response.json();
 
       if (response.ok) {
-        navigate('/Home');
+        navigate('/login');
       } else {
         setError(data.message || 'Signup failed');
       }
@@ -45,10 +46,10 @@ function SignupPage() {
   };
 
   return (
-    <div>
-      <h1>Signup Page</h1>
-      <form onSubmit={handleSignup}>
-        <label>
+    <div className="signup-container">
+      <h1 className="signup-title">Signup Page</h1>
+      <form onSubmit={handleSignup} className="signup-form">
+        <label className="signup-label">
           First Name:
           <input
             type="text"
@@ -56,10 +57,11 @@ function SignupPage() {
             value={formData.firstname}
             onChange={handleChange}
             required
+            className="signup-input"
           />
         </label>
         <br />
-        <label>
+        <label className="signup-label">
           Last Name:
           <input
             type="text"
@@ -67,10 +69,11 @@ function SignupPage() {
             value={formData.lastname}
             onChange={handleChange}
             required
+            className="signup-input"
           />
         </label>
         <br />
-        <label>
+        <label className="signup-label">
           Email:
           <input
             type="email"
@@ -78,20 +81,22 @@ function SignupPage() {
             value={formData.email}
             onChange={handleChange}
             required
+            className="signup-input"
           />
         </label>
         <br />
-        <label>
+        <label className="signup-label">
           Phone (optional):
           <input
             type="text"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
+            className="signup-input"
           />
         </label>
         <br />
-        <label>
+        <label className="signup-label">
           Password:
           <input
             type="password"
@@ -99,16 +104,17 @@ function SignupPage() {
             value={formData.password}
             onChange={handleChange}
             required
+            className="signup-input"
           />
         </label>
         <br />
-        <button type="submit">Sign Up</button>
+        <button type="submit" className="signup-button">Sign Up</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error */}
-      <p>
+      {error && <p className="signup-error">{error}</p>}
+      <p className="signup-login-link">
         Already have an account?{' '}
         <span
-          style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
+          className="signup-login-text"
           onClick={() => navigate('/')}
         >
           Log in here
