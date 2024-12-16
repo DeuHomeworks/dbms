@@ -20,9 +20,6 @@ function Home() {
             <Link to="/features" className="btn-secondary">
               Learn More
             </Link>
-            <Link to="/pricing" className="btn-secondary">
-              Pricing
-            </Link>
           </div>
         </div>
       </div>
