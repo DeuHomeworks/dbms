@@ -9,6 +9,9 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
         // Add more detailed logging
         console.log('Login attempt:', { email },{password});
 
@@ -25,9 +28,13 @@ router.post('/login', async (req, res) => {
             console.log('User not found or incorrect password.', email);
             return res.status(401).json({ message: 'User not found or incorrect password' });
         }
-
+        const jwtSecret = process.env.JWT_SECRET || 'defaultsecretkey';
+        if (!jwtSecret) {
+            console.error('JWT_SECRET is not defined');
+            return res.status(500).json({ message: 'Server configuration error' });
+        }
         // Generate JWT token
-        const token = jwt.sign({ UID: user.uid }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ UID: user.uid }, jwtSecret, { expiresIn: '1h' });
 
         res.json({ token });
     } catch (err) {
