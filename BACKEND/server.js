@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const cloud = require('./routes/cloud');
+const {join} = require("node:path");
 
 dotenv.config();
 
@@ -26,9 +28,11 @@ app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());
-
-// Routes
+//Routes
 app.use('/auth', authRoutes);
+app.use('/cloud', cloud);
+
+
 
 // Preflight request handler
 app.options('*', cors(corsOptions));
