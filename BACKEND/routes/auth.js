@@ -13,7 +13,7 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Email and password are required' });
         }
         // Add more detailed logging
-        console.log('Login attempt:', { email },{password});
+        console.log('Login attempt:', { email });
 
         const result = await pool.query('SELECT * FROM Users WHERE email = $1', [email]);
         const user = result.rows[0];
@@ -84,6 +84,41 @@ router.post('/signup', async (req, res) => {
     }
   }
 });
+
+
+// Get User Details Route
+router.get('/user', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const jwtSecret = process.env.JWT_SECRET || 'defaultsecretkey';
+    const decoded = jwt.verify(token, jwtSecret);
+    const userId = decoded.UID;
+
+    const result = await pool.query('SELECT firstname, lastname, email FROM Users WHERE uid = $1', [userId]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user details:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+
+
+
+
+
+
 
 module.exports = router;
 

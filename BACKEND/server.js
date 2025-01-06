@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const projectRoutes = require('./routes/projects'); // Import the new projects route
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const app = express();
 const corsOptions = {
   origin: 'http://localhost:3000', // Your React app's URL
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'User-ID'], // Ensure 'User-ID' is allowed
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -29,6 +30,7 @@ app.use(express.json());
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/projects', projectRoutes); // Use the new projects route
 
 // Preflight request handler
 app.options('*', cors(corsOptions));
