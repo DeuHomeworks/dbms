@@ -45,7 +45,7 @@ function ProjectsPage() {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`, // Include token in Authorization header
-          'User-ID': userId, // Include user ID in headers
+          'user-id': userId, // Include user ID in headers
         },
       });
 

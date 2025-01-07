@@ -99,7 +99,7 @@ router.get('/user', async (req, res) => {
     const decoded = jwt.verify(token, jwtSecret);
     const userId = decoded.UID;
 
-    const result = await pool.query('SELECT firstname, lastname, email FROM Users WHERE uid = $1', [userId]);
+    const result = await pool.query('SELECT * FROM users where uid = ($1)', [userId]);
     const user = result.rows[0];
 
     if (!user) {
