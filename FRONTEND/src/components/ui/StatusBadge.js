@@ -9,17 +9,24 @@ const statusStyles = {
 
 function StatusBadge({ status }) {
   const baseStyles = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium';
-  const colorStyles = statusStyles[status.toLowerCase()] || statusStyles.active;
+  
+  // Use a fallback value if `status` is null or undefined
+  const safeStatus = status ? status.toLowerCase() : 'active';
+  const colorStyles = statusStyles[safeStatus] || statusStyles.active;
 
   return (
     <span className={`${baseStyles} ${colorStyles}`}>
-      {status}
+      {status || 'Active'} {/* Fallback to 'Active' */}
     </span>
   );
 }
 
 StatusBadge.propTypes = {
-  status: PropTypes.string.isRequired,
+  status: PropTypes.string,
+};
+
+StatusBadge.defaultProps = {
+  status: 'Active', // Default status if none is provided
 };
 
 export default StatusBadge;
