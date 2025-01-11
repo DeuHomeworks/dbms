@@ -17,7 +17,7 @@ function ProjectList({ projects }) {
     <div className="space-y-4">
       {projects.map((project) => (
         <ProjectCard 
-          key={project.pid}  // Changed from id to pid
+          key={project.project_id}  // Changed from id to pid
           project={project} 
         />
       ))}
@@ -28,11 +28,9 @@ function ProjectList({ projects }) {
 ProjectList.propTypes = {
   projects: PropTypes.arrayOf(
     PropTypes.shape({
-      pid: PropTypes.number.isRequired,
-      pmid: PropTypes.number,
-      pname: PropTypes.string.isRequired,
-      pdesc: PropTypes.string,
-      pfolderid: PropTypes.string,
+      project_id: PropTypes.number.isRequired,
+      project_name: PropTypes.string.isRequired,
+      project_description: PropTypes.string
     })
   ).isRequired,
 };

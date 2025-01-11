@@ -1,21 +1,26 @@
 import PropTypes from 'prop-types';
 
+function goToProject() {
+  console.log('Navigating to project...');
+  // Implement the navigation logic here
+}
+
 function ProjectCard({ project }) {
   console.log('ProjectCard received project:', project);
-  const { pname, pdesc } = project;
+  const { project_name, project_description } = project;
 
   return (
     <div className="relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
       {/* Adding relative to make this card the reference point for absolute positioning */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{pname}</h3>
-          {pdesc && (
-            <p className="mt-1 text-sm text-gray-600">{pdesc}</p>
+          <h3 className="text-lg font-semibold text-gray-900">{project_name}</h3>
+          {project_description && (
+            <p className="mt-1 text-sm text-gray-600">{project_description}</p>
           )}
         </div>
         {/* Button positioned absolutely within the card */}
-        <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-600 hover:text-primary-600 transition-colors">
+        <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-600 hover:text-primary-600 transition-colors" onClick={goToProject}>
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             className="h-6 w-6" 
@@ -38,11 +43,9 @@ function ProjectCard({ project }) {
 
 ProjectCard.propTypes = {
   project: PropTypes.shape({
-    pid: PropTypes.number.isRequired,
-    pmid: PropTypes.number,
-    pname: PropTypes.string.isRequired,
-    pdesc: PropTypes.string,
-    pfolderid: PropTypes.string,
+    project_id: PropTypes.number.isRequired,
+    project_name: PropTypes.string.isRequired,
+    project_description: PropTypes.string
   }).isRequired
 };
 
