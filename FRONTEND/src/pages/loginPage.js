@@ -31,7 +31,7 @@ function LoginPage() {
       if (response.ok) {
         // If the response is successful, store the token in localStorage
         localStorage.setItem('token', data.token);
-        navigate('/projects'); // Navigate to the projects page
+        navigate('/projects/'); // Navigate to the projects page
       } else {
         // If the response is unsuccessful, display an error message
         setError(data.message || 'Login failed');

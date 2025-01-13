@@ -1,106 +1,178 @@
-import { useState, useEffect } from 'react';
-import DashboardLayout from '../components/layout/projectListLayout';
-import UserProfile from '../components/ui/UserProfile';
-import SearchBox from '../components/ui/SearchBox';
-import ProjectList from '../components/projectsList/projectList';
-import { fetchUserDetails } from '../utils/userUtils';
-import logo from '../assets/logo2.png';
-import CreateProjectButton from '../components/projectsList/CreateProjectButton';
-import CreateProjectModal from '../components/modals/createProjectModal'; 
-import { jwtDecode } from 'jwt-decode'; // Import jwt-decode library to decode JWT tokens
+import React, { useState } from "react";
+import "../styles/Dashboard.css";
 
-function ProjectsPage() {
-  const [projects, setProjects] = useState([]); // Initialize projects state to an empty array
-  const [user, setUser] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Add this state
+const mockTeams = [
+  { id: 1, name: "Team Alpha", members: ["Developer", "Team Member", "Manager"] },
+  { id: 2, name: "Team Beta", members: ["Developer", "Team Member", "Manager"] },
+  { id: 3, name: "Team Gamma", members: ["Team Member", "Manager"] },
+];
 
-  const handleCreateProject = () => {
-    setIsModalOpen(true); // Open the modal when the button is clicked
+const Dashboard = () => {
+  const [tasks, setTasks] = useState({
+    todo: ["Task 1", "Task 2", "Task 3"],
+    inProgress: ["Task 4"],
+    done: ["Task 5"],
+  });
+  const [userRole] = useState("Developer"); // Change to "Manager" or "Team Member" to test different roles
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null);
+
+  const handleDragStart = (e, task, sourceColumn) => {
+    e.dataTransfer.setData("task", task);
+    e.dataTransfer.setData("source", sourceColumn);
+
+    // For visual feedback
+    e.currentTarget.style.opacity = "0.5";
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false); // Close the modal
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = "1";
   };
-
-  const handleSubmitProject = (projectData) => {
-    // Add your project submission logic here
-    console.log('Project submitted:', projectData);
-    setIsModalOpen(false); // Close the modal after submission
+  const handleDragOver = (e) => {
+    e.preventDefault(); // Allow the drop operation
   };
+  const handleDrop = (e, targetColumn) => {
+    e.preventDefault(); // Prevent default behavior
+    const task = e.dataTransfer.getData("task");
+    const sourceColumn = e.dataTransfer.getData("source");
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Decode the token to extract the user ID
-      const decoded = jwtDecode(token); // Decode JWT to extract user info
-      const userId = decoded.UID; // Get the user ID from the decoded token
-      
-      // Fetch user details (if needed for your logic)
-      fetchUserDetails(token).then((userData) => {
-        if (userData) {
-          setUser(userData);
-          fetchProjects(userId, token); // Fetch projects after setting user
-        }
+    if (sourceColumn !== targetColumn) {
+      setTasks((prevTasks) => {
+        const updatedSource = prevTasks[sourceColumn].filter((t) => t !== task);
+        const updatedTarget = [...prevTasks[targetColumn], task];
+
+        return {
+          ...prevTasks,
+          [sourceColumn]: updatedSource,
+          [targetColumn]: updatedTarget,
+        };
       });
     }
-  }, []);
-
-  const fetchProjects = async (userId, token) => {
-    try {
-      const response = await fetch('http://localhost:5000/projects/userProjects', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'User-ID': userId,
-        },
-      });
-  
-      if (response.ok) {
-        const projects = await response.json();
-        console.log('Raw projects data:', projects); // More detailed logging
-        setProjects(projects);
-      } else {
-        console.error('Failed to fetch projects:', await response.text());
-      }
-    } catch (error) {
-      console.error('Error fetching projects:', error);
+  };
+  const handleTeamClick = (team) => {
+    if (userRole === "Manager" || team.members.includes(userRole)) {
+      setSelectedTeam(team);
+      setSelectedSection(null); // Reset section when a new team is selected
     }
+  };
+
+  const handleSectionClick = (section) => {
+    setSelectedSection(section);
+  };
+
+  const renderMainContent = () => {
+    if (!selectedTeam) {
+      return <p>Please select a team to see its details.</p>;
+    }
+
+    if (!selectedSection) {
+      return <p>Please select a section (Tasks, Notes, or Files) for {selectedTeam.name}.</p>;
+    }
+
+    return (
+        <div className="kanban-board">
+          {Object.keys(tasks).map((column) => (
+              <div
+                  key={column}
+                  className={`kanban-column ${column}`}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, column)}
+              >
+                <h3>
+                  {column === "todo"
+                      ? "To Do"
+                      : column === "inProgress"
+                          ? "In Progress"
+                          : "Done"}
+                </h3>
+                <ul>
+                  {tasks[column].map((task, index) => (
+                      <li
+                          key={index}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, task, column)}
+                          onDragEnd={handleDragEnd}
+                      >
+                        {task}
+                      </li>
+                  ))}
+                </ul>
+              </div>
+          ))}
+        </div>
+    );
   };
 
   return (
-    <DashboardLayout>
-      <div className="flex items-center space-x-4 mb-8">
-        {user ? (
-          <UserProfile name={`${user.firstname} ${user.lastname}`} avatarUrl="/default-avatar.png" />
-        ) : (
-          <UserProfile name="Loading..." avatarUrl="/default-avatar.png" />
-        )}
-      </div>
+      <div className="dashboard-container">
+        {/* Sidebar */}
+        <div className="sidebar">
+          {/* Active Project Name */}
+          <div className="active-project">MBEA</div>
+          <hr className="sidebar-divider"/>
+          {/* Line added here */}
 
-      <div className="mb-8">
-        <div className="flex justify-center -mb-2">
-          <img src={logo} alt="Logo" className="w-48 h-48" />
-        </div>
-        <p className="text-center text-lg text-gray-600 -mt-10 mb-4">
-          Nice to see you again! Here is your workspace.
-        </p>
-      </div>
+          <div className="sidebar-section">
+            <h3>Teams</h3>
+            <ul>
+              {mockTeams.map((team) => (
+                  <React.Fragment key={team.id}>
+                    <li
+                        className={`team-item ${
+                            userRole === "Manager" || team.members.includes(userRole)
+                                ? "clickable"
+                                : "disabled"
+                        }`}
+                        onClick={() => handleTeamClick(team)}
+                    >
+                      {team.name}
+                    </li>
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Your Projects</h2>
-          <SearchBox />
+                    {/* Submenu for selected team */}
+                    {selectedTeam?.id === team.id && (
+                        <ul className="team-submenu">
+                          <li
+                              className={`submenu-item ${
+                                  selectedSection === "tasks" ? "active" : ""
+                              }`}
+                              onClick={() => handleSectionClick("tasks")}
+                          >
+                            Tasks
+                          </li>
+                          <li
+                              className={`submenu-item ${
+                                  selectedSection === "notes" ? "active" : ""
+                              }`}
+                              onClick={() => handleSectionClick("notes")}
+                          >
+                            Notes
+                          </li>
+                          <li
+                              className={`submenu-item ${
+                                  selectedSection === "files" ? "active" : ""
+                              }`}
+                              onClick={() => handleSectionClick("files")}
+                          >
+                            Files
+                          </li>
+                        </ul>
+                    )}
+                  </React.Fragment>
+              ))}
+            </ul>
+          </div>
+
+          {/* Sidebar Footer */}
+          <hr className="sidebar-divider" /> {/* Line above the footer */}
+          <div className="sidebar-bottom">
+            Logged in as Ahmed Yavuz
+          </div>
         </div>
-        <CreateProjectButton onClick={handleCreateProject}/>
-        <ProjectList projects={projects} />
+
+        {/* Main Content */}
+        <div className="main-content">{renderMainContent()}</div>
       </div>
-      <CreateProjectModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmitProject}
-      />
-    </DashboardLayout>
   );
-}
+};
 
-export default ProjectsPage;
+export default Dashboard;

@@ -1,0 +1,242 @@
+/* General Container */
+.dashboard-container {
+    display: flex;
+    height: 100vh; /* Ensures the entire screen height is covered */
+}
+
+/* Team Names with Indicator */
+.team-item {
+    font-size: 18px; /* Larger font size */
+    font-weight: bold; /* Bold text */
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    color: black; /* Black text */
+    cursor: default;
+    transition: background-color 0.2s;
+    position: relative; /* For positioning the indicator */
+}
+
+.team-item::before {
+    content: '>'; /* Add indicator */
+    position: absolute;
+    left: -10px; /* Position it to the left of the team name */
+    color: #1e88e5; /* Match the clickable color */
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.team-item.clickable:hover::before {
+    color: #1565c0; /* Change color on hover */
+}
+
+.team-item.disabled::before {
+    color: #aaa; /* Gray indicator for disabled items */
+}
+
+/* Submenu Items (Tasks, Notes, Files) with Dot Indicator */
+.submenu-item {
+    font-size: 16px; /* Larger font size */
+    font-weight: bold; /* Bold text */
+    color: black; /* Black text */
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative; /* For positioning the dot */
+    padding-left: 20px; /* Space for the dot indicator */
+}
+
+.submenu-item::before {
+    content: '•'; /* Add dot indicator */
+    position: absolute;
+    left: 0; /* Align dot to the left of the submenu */
+    color: #1e88e5; /* Blue indicator */
+    font-size: 18px; /* Match text size */
+}
+
+.submenu-item:hover {
+    color: #1e88e5; /* Highlight text on hover */
+}
+
+.submenu-item:hover::before {
+    color: #1565c0; /* Change dot color on hover */
+}
+
+.submenu-item.active {
+    color: #1e88e5; /* Active text color */
+}
+
+.submenu-item.active::before {
+    color: #1e88e5; /* Active dot color */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    height: 100%; /* Full height of the screen */
+    position: relative; /* Allows for dynamic bottom placement */
+}
+
+.active-project {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #062ffa;
+}
+
+.sidebar-section h3 {
+    font-size: 18px;
+    color: #000000;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    cursor: default;
+    transition: background-color 0.2s;
+}
+
+ul li.clickable {
+    cursor: pointer;
+    color: #1e88e5;
+}
+
+ul li.clickable:hover {
+    background-color: #e3f2fd;
+}
+
+ul li.disabled {
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Submenu (Tasks, Notes, Files) */
+.team-submenu {
+    list-style: none;
+    padding-left: 20px;
+}
+
+/* Sidebar Bottom Alignment */
+.sidebar-bottom {
+    margin-top: auto; /* Pushes this section to the bottom */
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 14px;
+    color: #000000;
+    text-align: center;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    background: #c7eaff; /* Matches the uploaded color */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.team-details {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.team-details h2 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.team-details ul {
+    padding: 0;
+    list-style: none;
+}
+
+.team-details li {
+    margin: 5px 0;
+    color: #555;
+}
+
+.app-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.app-card h2 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.app-card p {
+    color: #555;
+}
+.kanban-board {
+    display: flex;
+    gap: 20px;
+    justify-content: space-evenly; /* Ensure even spacing in fullscreen */
+    align-items: flex-start;
+    width: 100%; /* Expand to full width */
+    padding: 20px;
+    height: calc(100vh - 40px); /* Adjust height for fullscreen */
+    overflow-y: auto; /* Allow scrolling */
+}
+
+.kanban-column {
+    background: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Ensure columns stretch evenly */
+    min-width: 300px; /* Maintain a minimum width */
+    max-height: 90%; /* Avoid overflow */
+    overflow-y: auto; /* Scroll if content exceeds column height */
+}
+
+.kanban-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.kanban-column li {
+    background: white;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: grab;
+    transition: background-color 0.2s;
+}
+
+.kanban-column li:hover {
+    background-color: #e3f2fd;
+}
+
+.kanban-column li:active {
+    cursor: grabbing;
+}

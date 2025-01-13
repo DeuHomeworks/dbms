@@ -15,6 +15,8 @@ import Navbar from './components/Navbar'; // Navbar component for site navigatio
 import Footer from './components/Footer'; // Footer component for site footer
 import ProjectsPage from './pages/projectspage'; // Projects page component
 import AboutPage from './pages/About'; // About page component
+import DashboardPage from './pages/dashboardpage'; // About page component
+
 import './styles/Global.css'; // Global stylesheet for consistent styles across the app
 
 // A helper component to conditionally render the Navbar and Footer based on the current route
@@ -63,8 +65,10 @@ function App() {
           {/* Pricing page route */}
           <Route path="/about" element={<AboutPage />} /> 
           {/* About page route */}
-          <Route path="/projects" element={<ProjectsPage />} /> 
+          <Route path="/projects" element={<ProjectsPage />} />
           {/* Projects page route (doesn't show Navbar/Footer due to Layout logic) */}
+          <Route path="/dashboard" element={<DashboardPage />} />
+
         </Routes>
       </Layout>
     </Router>
