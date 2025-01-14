@@ -6,9 +6,10 @@ const router = express.Router();
 
 router.post('/getTeams', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
-    const  curProject  = req.headers['curproject']; // Properly destructuring curProject from req.body
-    console.log('curProject:', req.headers);
+    const curProject = req.body.curProject;  // Read curProject from the body
     console.log('curProject:', curProject);
+    console.log('req body :', req.body);
+    console.log('token:', token);
 
     if (!token) {
         return res.status(401).json({ message: "Authentication required" });
@@ -42,9 +43,10 @@ router.post('/getTeams', async (req, res) => {
 
 
 
+
 router.post('/getTasks', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
-    const  teamId  = req.headers['teamid']; // Properly destructuring curProject from req.body
+    const teamId = req.body.teamId;; // Properly destructuring curProject from req.body
     console.log('TeamId:', req.headers);
     console.log('TeamId:', teamId);
 

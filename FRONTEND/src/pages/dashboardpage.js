@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { fetchUserDetails, authenticatedFetch } from '../utils/userUtils';
-import { jwtDecode } from 'jwt-decode'; // Import jwt-decode library to decode JWT tokens
+import { fetchUserDetails } from '../utils/userUtils';
+import { fetchProjectTeams, fetchTeamTasks } from "../utils/dashboardUtils";
 import "../styles/Dashboard.css";
-import { fetchProjectTeams } from "../utils/dashboardUtils";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState({
@@ -11,8 +10,6 @@ const Dashboard = () => {
     done: [],
   });
   const [teams, setTeams] = useState([]);
-  const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
@@ -20,29 +17,37 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   const token = localStorage.getItem('token');
-  // const decoded = jwtDecode(token); // Decode JWT to extract user info
-  // const userId = decoded.UID; // Get the user ID from the decoded token
 
+  // Fetch user details
   useEffect(() => {
-    if (token) {
-      fetchUserDetails(token).then((userData) => {
-        if (userData) {
-          setUser(userData);
-          console.log('User data:', userData);
+    const getUserDetails = async () => {
+      if (token) {
+        try {
+          const userData = await fetchUserDetails(token);
+          if (userData) {
+            setCurrentUser(userData);
+            console.log('User data:', userData);
+          }
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+          setError('Failed to load user details');
         }
-
-      });
-    }
-  }, []);
+      }
+    };
+    getUserDetails();
+  }, [token]);
 
   // Fetch teams data
   useEffect(() => {
     const fetchTeams = async () => {
-      if (!currentUser) return; // Only fetch teams if user is loaded
+      if (!currentUser) return;
 
       try {
         const teamsData = await fetchProjectTeams(token);
-        setTeams(teamsData);
+        if (teamsData) {
+          setTeams(teamsData);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error('Error fetching teams:', error);
         setError('Failed to load teams. Please try again later.');
@@ -50,7 +55,7 @@ const Dashboard = () => {
     };
 
     fetchTeams();
-  });
+  }, [currentUser, token]);
 
   // Fetch tasks when a team is selected
   useEffect(() => {
@@ -58,16 +63,18 @@ const Dashboard = () => {
       if (selectedTeam && selectedSection === 'tasks') {
         setIsLoading(true);
         try {
-          const tasksData = await authenticatedFetch(`/api/teams/${selectedTeam.id}/tasks`);
+          const tasksData = await fetchTeamTasks(token, selectedTeam.team_id);
           
-          // Organize tasks by status
-          const organizedTasks = {
-            todo: tasksData.filter(task => task.status === 'todo'),
-            inProgress: tasksData.filter(task => task.status === 'inProgress'),
-            done: tasksData.filter(task => task.status === 'done')
-          };
-          
-          setTasks(organizedTasks);
+          if (tasksData) {
+            // Organize tasks by status
+            const organizedTasks = {
+              todo: tasksData.filter(task => task.status === 'todo'),
+              inProgress: tasksData.filter(task => task.status === 'inProgress'),
+              done: tasksData.filter(task => task.status === 'done')
+            };
+            
+            setTasks(organizedTasks);
+          }
         } catch (error) {
           console.error('Error fetching tasks:', error);
           setError('Failed to load tasks. Please try again later.');
@@ -78,7 +85,7 @@ const Dashboard = () => {
     };
 
     fetchTasks();
-  }, [selectedTeam, selectedSection]);
+  }, [selectedTeam, selectedSection, token]);
 
   const handleDragStart = (e, task, sourceColumn) => {
     e.dataTransfer.setData("taskId", task.id);
@@ -94,50 +101,22 @@ const Dashboard = () => {
     e.preventDefault();
   };
 
-  // const handleDrop = async (e, targetColumn) => {
-  //   e.preventDefault();
-  //   const taskId = e.dataTransfer.getData("taskId");
-  //   const sourceColumn = e.dataTransfer.getData("source");
-
-  //   if (sourceColumn !== targetColumn) {
-  //     try {
-  //       await authenticatedFetch(`/api/tasks/${taskId}`, {
-  //         method: 'PATCH',
-  //         body: JSON.stringify({
-  //           status: targetColumn
-  //         })
-  //       });
-
-  //       // Update local state
-  //       setTasks(prevTasks => {
-  //         const task = prevTasks[sourceColumn].find(t => t.id === taskId);
-  //         const updatedSource = prevTasks[sourceColumn].filter(t => t.id !== taskId);
-  //         const updatedTarget = [...prevTasks[targetColumn], task];
-
-  //         return {
-  //           ...prevTasks,
-  //           [sourceColumn]: updatedSource,
-  //           [targetColumn]: updatedTarget,
-  //         };
-  //       });
-  //     } catch (error) {
-  //       console.error('Error updating task status:', error);
-  //       setError('Failed to update task. Please try again.');
-  //     }
-  //   }
-  // };
-
   const handleTeamClick = (team) => {
-    if (userRole === "Manager" || team.members.includes(userRole)) {
+    // Modified to check if user is manager in the current project
+    const curProject = localStorage.getItem("curProject");
+    const userProjects = JSON.parse(localStorage.getItem("userProjects") || "[]");
+    const currentProject = userProjects.find(p => p.project_id.toString() === curProject);
+    
+    if (currentProject?.is_manager || true) { // Temporarily allowing all users to access teams
       setSelectedTeam(team);
       setSelectedSection(null);
-      setError(null); // Clear any previous errors
+      setError(null);
     }
   };
 
   const handleSectionClick = (section) => {
     setSelectedSection(section);
-    setError(null); // Clear any previous errors
+    setError(null);
   };
 
   const renderMainContent = () => {
@@ -154,7 +133,7 @@ const Dashboard = () => {
     }
 
     if (!selectedSection) {
-      return <p>Please select a section (Tasks, Notes, or Files) for {selectedTeam.name}.</p>;
+      return <p>Please select a section (Tasks, Notes, or Files) for {selectedTeam.team_name}</p>;
     }
 
     return (
@@ -164,7 +143,6 @@ const Dashboard = () => {
             key={column}
             className={`kanban-column ${column}`}
             onDragOver={handleDragOver}
-            // onDrop={(e) => handleDrop(e, column)}
           >
             <h3>
               {column === "todo"
@@ -194,26 +172,22 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="sidebar">
-        <div className="active-project">MBEA</div>
+        <div className="active-project">{localStorage.getItem("curProject") || "No Project Selected"}</div>
         <hr className="sidebar-divider" />
 
         <div className="sidebar-section">
           <h3>Teams</h3>
           <ul>
             {teams.map((team) => (
-              <React.Fragment key={team.id}>
+              <React.Fragment key={team.team_id}>
                 <li
-                  className={`team-item ${
-                    userRole === "Manager" || team.members.includes(userRole)
-                      ? "clickable"
-                      : "disabled"
-                  }`}
+                  className="team-item clickable"
                   onClick={() => handleTeamClick(team)}
                 >
-                  {team.name}
+                  {team.team_name}
                 </li>
 
-                {selectedTeam?.id === team.id && (
+                {selectedTeam?.team_id === team.team_id && (
                   <ul className="team-submenu">
                     <li
                       className={`submenu-item ${
