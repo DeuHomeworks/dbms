@@ -19,3 +19,5 @@ export async function fetchUserDetails(token) {
     return null;
   }
 }
+
+export async function authenticatedFetch(token, userId) {}

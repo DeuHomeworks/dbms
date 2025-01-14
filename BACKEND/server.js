@@ -2,7 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
-const projectRoutes = require('./routes/projects'); // Import the new projects route
+const projectRoutes = require('./routes/projects');
+const dashboardRoutes = require('./routes/dashboard') // Import the new projects route
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(express.json());
 // Routes
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes); // Use the new projects route
+app.use('/dashboard', dashboardRoutes); // Use the new projects route
 
 // Preflight request handler
 app.options('*', cors(corsOptions));

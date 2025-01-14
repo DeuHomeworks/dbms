@@ -17,7 +17,7 @@ router.get('/userProjects', async (req, res) => {
     jwt.verify(token, jwtSecret);
 
     const result = await pool.query(
-      'SELECT * FROM getuserprojects($1);',
+      'SELECT * FROM get_user_projects($1);',
       [userId]
     );
     const projects = result.rows;
