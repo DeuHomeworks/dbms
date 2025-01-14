@@ -1,6 +1,27 @@
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import {useEffect} from "react";
+import {fetchUserDetails} from "../utils/userUtils";
+import {jwtDecode} from "jwt-decode";
 
 function Home() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Decode the token to extract the user ID
+      const decoded = jwtDecode(token); // Decode JWT to extract user info
+      const userId = decoded.UID; // Get the user ID from the decoded token
+
+      // Fetch user details (if needed for your logic)
+      fetchUserDetails(token).then((userData) => {
+        if (userData) {
+          navigate("/projects/");
+        }
+      });
+    }
+  }, []);
+
   return (
     <div className="bg-white">
       {/* Hero Section */}

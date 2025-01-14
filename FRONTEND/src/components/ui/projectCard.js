@@ -1,16 +1,21 @@
 import PropTypes from 'prop-types';
-
-function goToProject() {
-  console.log('Navigating to project...');
-  // Implement the navigation logic here
-}
+import { useNavigate } from 'react-router-dom';
 
 function ProjectCard({ project }) {
+
+  const navigate = useNavigate();
+
+  const goToProject = () => {
+    console.log('Go to project...', project);
+    localStorage.setItem('curProject', project.project_id);
+
+    navigate('/dashboard');
+  }
   console.log('ProjectCard received project:', project);
   const { project_name, project_description } = project;
 
   return (
-    <div className="relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div className="relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow" onClick={goToProject}>
       {/* Adding relative to make this card the reference point for absolute positioning */}
       <div className="flex items-start justify-between">
         <div>
@@ -20,22 +25,6 @@ function ProjectCard({ project }) {
           )}
         </div>
         {/* Button positioned absolutely within the card */}
-        <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-600 hover:text-primary-600 transition-colors" onClick={goToProject}>
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-6 w-6" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
       </div>
     </div>
   );

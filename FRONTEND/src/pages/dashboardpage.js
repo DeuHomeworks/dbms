@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Dashboard.css";
 
-const mockTeams = [
-  { id: 1, name: "Team Alpha", members: ["Developer", "Team Member", "Manager"] },
-  { id: 2, name: "Team Beta", members: ["Developer", "Team Member", "Manager"] },
-  { id: 3, name: "Team Gamma", members: ["Team Member", "Manager"] },
-];
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState({
