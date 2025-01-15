@@ -240,3 +240,39 @@ ul li.disabled {
 .kanban-column li:active {
     cursor: grabbing;
 }
+.file-upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.task-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-uploader {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+label {
+    font-weight: bold;
+}
+
+select,
+input[type="file"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+.upload-status {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: green;
+}
+
+.upload-status.error {
+    color: red;
+}

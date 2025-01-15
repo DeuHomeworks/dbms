@@ -4,6 +4,7 @@ import { fetchProjectTeams, fetchTeamTasks } from "../utils/dashboardUtils";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
+  const [uploadStatus, setUploadStatus] = useState(""); // Track upload status
   const [tasks, setTasks] = useState({
     todo: [],
     inProgress: [],
@@ -13,11 +14,13 @@ const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedTask, setSelectedTask] = useState(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const project = JSON.parse(localStorage.getItem("curProject"));
+  console.log(project);
   const token = localStorage.getItem('token');
-
   // Fetch user details
   useEffect(() => {
     const getUserDetails = async () => {
@@ -72,8 +75,9 @@ const Dashboard = () => {
               inProgress: tasksData.filter(task => task.status === 'inProgress'),
               done: tasksData.filter(task => task.status === 'done')
             };
-            
+            console.log(tasksData);
             setTasks(organizedTasks);
+            console.log("Organized Tasks",organizedTasks);
           }
         } catch (error) {
           console.error('Error fetching tasks:', error);
@@ -86,11 +90,59 @@ const Dashboard = () => {
 
     fetchTasks();
   }, [selectedTeam, selectedSection, token]);
+  const fileHandle = async (fileList, selectedTask) => {
+    if (!selectedTask) {
+      setUploadStatus("Please select a task before uploading a file.");
+      return;
+    }
+
+    if (fileList && fileList.length > 0) {
+      const file = fileList[0];
+      console.log("Selected file:", file.name);
+      await uploadFileToBackend(file, selectedTask);
+    } else {
+      setUploadStatus("No file selected.");
+    }
+  };
 
   const handleDragStart = (e, task, sourceColumn) => {
     e.dataTransfer.setData("taskId", task.id);
     e.dataTransfer.setData("source", sourceColumn);
     e.currentTarget.style.opacity = "0.5";
+  };
+
+  const uploadFileToBackend = async (file, task) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("task", task); // Attach task to the form data
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await fetch("http://localhost:5000/cloud/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        if (response.ok) {
+          setUploadStatus(`File uploaded successfully!`);
+        } else {
+          setUploadStatus("Error uploading file");
+        }
+      } catch (error) {
+        console.error("Error during file upload to backend:", error);
+        setUploadStatus("Error during file upload to backend");
+      }
+    } else {
+      console.log("User is not logged in");
+    }
+  };
+
+  const handleTaskSelection = (taskId) => {
+    setSelectedTask(taskId);
+    console.log(`Task selected: ${taskId}`);
   };
 
   const handleDragEnd = (e) => {
@@ -136,43 +188,82 @@ const Dashboard = () => {
       return <p>Please select a section (Tasks, Notes, or Files) for {selectedTeam.team_name}</p>;
     }
 
-    return (
-      <div className="kanban-board">
-        {Object.keys(tasks).map((column) => (
-          <div
-            key={column}
-            className={`kanban-column ${column}`}
-            onDragOver={handleDragOver}
-          >
-            <h3>
-              {column === "todo"
-                ? "To Do"
-                : column === "inProgress"
-                ? "In Progress"
-                : "Done"}
-            </h3>
-            <ul>
-              {tasks[column].map((task) => (
-                <li
-                  key={task.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, task, column)}
-                  onDragEnd={handleDragEnd}
+    if (selectedSection === "files") {
+      if (selectedSection === "files") {
+        return (
+            <div className="file-upload-section">
+              <div className="task-selector">
+                <label htmlFor="task-dropdown">Choose a task:</label>
+                <select
+                    id="task-dropdown"
+                    defaultValue=""
+                    onChange={(e) => handleTaskSelection(e.target.value)}
                 >
-                  {task.title}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+                  <option value="" disabled>
+                    Select a task
+                  </option>
+                  {Object.values(tasks).flat().map((task) => (
+                      <option key={task.task_id} value={task.task_id}>
+                        {task.task_name}
+                      </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="file-uploader">
+                <label htmlFor="file-input">Upload a file:</label>
+                <input
+                    id="file-input"
+                    type="file"
+                    onChange={(e) =>
+                        fileHandle(e.target.files, document.getElementById("task-dropdown").value)
+                    }
+                />
+              </div>
+              {uploadStatus && <div className="upload-status">{uploadStatus}</div>}
+            </div>
+        );
+      }
+
+    }
+
+    return (
+        <div className="kanban-board">
+          {Object.keys(tasks).map((column) => (
+              <div
+                  key={column}
+                  className={`kanban-column ${column}`}
+                  onDragOver={handleDragOver}
+              >
+                <h3>
+                  {column === "todo"
+                      ? "To Do"
+                      : column === "inProgress"
+                          ? "In Progress"
+                          : "Done"}
+                </h3>
+                <ul>
+                  {tasks[column].map((task) => (
+                      <li
+                          key={task.task_id}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, task, column)}
+                          onDragEnd={handleDragEnd}
+                      >
+                        {task.task_name}
+                      </li>
+                  ))}
+                </ul>
+              </div>
+          ))}
+        </div>
     );
   };
 
   return (
     <div className="dashboard-container">
       <div className="sidebar">
-        <div className="active-project">{localStorage.getItem("curProject") || "No Project Selected"}</div>
+        <div className="active-project">{(project.project_name)}</div>
         <hr className="sidebar-divider" />
 
         <div className="sidebar-section">

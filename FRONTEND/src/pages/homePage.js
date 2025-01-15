@@ -16,7 +16,7 @@ function Home() {
       // Fetch user details (if needed for your logic)
       fetchUserDetails(token).then((userData) => {
         if (userData) {
-          navigate("/projects/");
+         // navigate("/projects/");
         }
       });
     }

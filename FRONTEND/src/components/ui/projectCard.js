@@ -7,7 +7,7 @@ function ProjectCard({ project }) {
 
   const goToProject = () => {
     console.log('Go to project...', project);
-    localStorage.setItem('curProject', project.project_id);
+    localStorage.setItem('curProject', JSON.stringify(project));
 
     navigate('/dashboard');
   }

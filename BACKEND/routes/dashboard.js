@@ -6,16 +6,13 @@ const router = express.Router();
 
 router.post('/getTeams', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
-    const curProject = req.body.curProject;  // Read curProject from the body
-    console.log('curProject:', curProject);
-    console.log('req body :', req.body);
-    console.log('token:', token);
+    const project = JSON.parse(req.body.curProject);  // No need to JSON.parse()
 
     if (!token) {
         return res.status(401).json({ message: "Authentication required" });
     }
 
-    if (!curProject) {
+    if (!project) {
         return res.status(400).json({ error: 'Project ID (curProject) is required.' });
     }
 
@@ -25,10 +22,10 @@ router.post('/getTeams', async (req, res) => {
 
         const result = await pool.query(
             'SELECT * FROM get_teams_under_project($1);',
-            [curProject]
+            [project.project_id]
         );
         const teams = result.rows;
-        console.log('Projects Teams:', curProject);
+        console.log('Projects Teams:', teams);
 
         if (teams.length === 0) {
             return res.status(404).json({ message: 'No projects found for this user' });
@@ -44,11 +41,10 @@ router.post('/getTeams', async (req, res) => {
 
 
 
+
 router.post('/getTasks', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
-    const teamId = req.body.teamId;; // Properly destructuring curProject from req.body
-    console.log('TeamId:', req.headers);
-    console.log('TeamId:', teamId);
+    const teamId = JSON.parse(req.body.teamId); // Properly destructuring curProject from req.body
 
     if (!token) {
         return res.status(401).json({ message: "Authentication required" });
